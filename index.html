@@ -909,8 +909,21 @@ async function saveRow(id) {
   btn.textContent = 'Guardando...';
   btn.disabled = true;
 
-  // Construir payload
-  const payload = { ID_Linea_OV: id };
+  // Buscar el registro original para obtener su creator_ID (ID interno de Creator)
+  const originalRec = state.pendientes.find(r => r.ID_Linea_OV === id);
+  if (!originalRec || !originalRec.creator_ID) {
+    btn.classList.remove('saving');
+    btn.textContent = 'Reintentar';
+    btn.disabled = false;
+    showToast('error', 'No se encontró el ID interno de Creator para este registro');
+    return;
+  }
+
+  // Construir payload: el webhook PATCH espera creator_ID + campos a actualizar
+  const payload = {
+    creator_ID:  originalRec.creator_ID,
+    ID_Linea_OV: id  // se mantiene por trazabilidad/logs en el webhook
+  };
   if ('Comentario' in changes) payload.Comentario = changes.Comentario;
   if ('Estado'     in changes) payload.Estado     = changes.Estado;
   if ('ETA'        in changes) payload.ETA        = changes.ETA; // YYYY-MM-DD del input date
