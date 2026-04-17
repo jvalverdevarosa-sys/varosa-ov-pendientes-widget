@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VAROSA · Seguimiento de OV Pendientes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================================
+     VAROSA — OV Pendientes Widget
+     Design tokens
+     ========================================================== */
+  :root {
+    --c-cyan:        #15C9E4;
+    --c-blue-mid:    #4672B1;
+    --c-yellow:      #FFAD00;
+    --c-blue-dark:   #325895;
+    --c-bg:          #F4F6FA;
+    --c-surface:     #FFFFFF;
+    --c-border:      #E2E7EF;
+    --c-text:        #1A2332;
+    --c-text-soft:   #5C6A82;
+    --c-text-muted:  #8A95A8;
+    --c-success:     #16A34A;
+    --c-success-bg:  #DCFCE7;
+    --c-warn:        #EA580C;
+    --c-warn-bg:     #FFEDD5;
+    --c-info:        #0EA5E9;
+    --c-info-bg:     #E0F2FE;
+    --c-error:       #DC2626;
+    --c-error-bg:    #FEE2E2;
+
+    --radius-sm: 6px;
+    --radius:    10px;
+    --radius-lg: 14px;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
+    --shadow:    0 4px 12px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+    --shadow-lg: 0 12px 32px rgba(15,23,42,.1);
+
+    --font-display: 'Inter', system-ui, sans-serif;
+    --font-body:    'Montserrat', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font-body);
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+  input, select, textarea { font-family: inherit; font-size: inherit; }
+
+  /* ==========================================================
+     Layout
+     ========================================================== */
+  .app {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    background: linear-gradient(135deg, var(--c-blue-dark) 0%, var(--c-blue-mid) 100%);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    box-shadow: var(--shadow);
+  }
+  .header-title { display: flex; align-items: center; gap: 14px; }
+  .header-icon {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,.15);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .header h1 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+  }
+  .header .subtitle {
+    font-size: 12px;
+    opacity: .8;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+  .btn-refresh {
+    background: rgba(255,255,255,.15);
+    color: #fff;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background .15s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-refresh:hover { background: rgba(255,255,255,.25); }
+  .btn-refresh.loading { opacity: .6; pointer-events: none; }
+  .btn-refresh svg { width: 14px; height: 14px; }
+  .btn-refresh.loading svg { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---- KPIs ---- */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .kpi {
+    background: var(--c-surface);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    border-left: 3px solid var(--c-cyan);
+  }
+  .kpi.warn  { border-left-color: var(--c-warn); }
+  .kpi.info  { border-left-color: var(--c-info); }
+  .kpi.gold  { border-left-color: var(--c-yellow); }
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--c-text-muted);
+  }
+  .kpi-value {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--c-blue-dark);
+    margin-top: 4px;
+  }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--c-text-soft);
+    margin-top: 2px;
+  }
+
+  /* ---- Filters ---- */
+  .filters {
+    background: var(--c-surface);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+    display: grid;
+    grid-template-columns: 2fr repeat(3, 1fr) auto;
+    gap: 10px;
+    align-items: end;
+  }
+  @media (max-width: 900px) {
+    .filters { grid-template-columns: 1fr 1fr; }
+  }
+  .filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .filter-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--c-text-muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .filter-group input,
+  .filter-group select {
+    padding: 9px 12px;
+    border: 1px solid var(--c-border);
+    border-radius: 8px;
+    background: var(--c-bg);
+    color: var(--c-text);
+    transition: border-color .15s, background .15s;
+    width: 100%;
+  }
+  .filter-group input:focus,
+  .filter-group select:focus {
+    outline: none;
+    border-color: var(--c-cyan);
+    background: #fff;
+  }
+  .btn-clear {
+    padding: 9px 14px;
+    background: var(--c-bg);
+    color: var(--c-text-soft);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--c-border);
+    transition: all .15s;
+    height: 38px;
+  }
+  .btn-clear:hover { background: #fff; color: var(--c-text); }
+
+  /* ---- Estado / loading / error ---- */
+  .status-bar {
+    background: var(--c-surface);
+    border-radius: var(--radius);
+    padding: 60px 20px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .status-bar.error { color: var(--c-error); }
+  .status-bar p { color: var(--c-text-soft); margin-top: 8px; font-size: 13px; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--c-border);
+    border-top-color: var(--c-cyan);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+    margin: 0 auto;
+  }
+
+  /* ---- Lista de productos (grupos) ---- */
+  .product-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .product-group {
+    background: var(--c-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .product-group:hover { box-shadow: var(--shadow); }
+  .product-group.expanded { box-shadow: var(--shadow); }
+
+  .product-header {
+    display: grid;
+    grid-template-columns: 28px 1fr auto auto auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s;
+  }
+  .product-header:hover { background: #FAFBFD; }
+
+  .chevron {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--c-text-muted);
+    transition: transform .2s;
+  }
+  .product-group.expanded .chevron { transform: rotate(90deg); color: var(--c-blue-mid); }
+  .chevron svg { width: 14px; height: 14px; }
+
+  .product-name {
+    font-weight: 600;
+    color: var(--c-text);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+  .product-meta {
+    font-size: 12px;
+    color: var(--c-text-muted);
+    margin-top: 2px;
+  }
+
+  .product-stat {
+    text-align: right;
+    min-width: 80px;
+  }
+  .product-stat-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--c-blue-dark);
+    font-size: 16px;
+    line-height: 1.1;
+  }
+  .product-stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--c-text-muted);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .badge-count {
+    background: var(--c-info-bg);
+    color: var(--c-info);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* ---- Detalle: filas de OVs ---- */
+  .ov-list {
+    display: none;
+    border-top: 1px solid var(--c-border);
+    background: #FAFBFD;
+  }
+  .product-group.expanded .ov-list { display: block; }
+
+  .ov-row {
+    display: grid;
+    grid-template-columns: minmax(140px, 1.2fr) minmax(180px, 1.6fr) 100px 90px 70px 60px minmax(180px, 2fr) 130px 110px 80px;
+    gap: 12px;
+    padding: 12px 18px 12px 62px;
+    align-items: start;
+    border-bottom: 1px solid var(--c-border);
+    font-size: 12px;
+  }
+  .ov-row:last-child { border-bottom: none; }
+  .ov-row:hover { background: #fff; }
+  .ov-row.dirty { background: #FFFBEB; }
+  .ov-row.dirty:hover { background: #FFF8DB; }
+
+  .ov-row-headers {
+    background: #EEF2F8;
+    padding: 8px 18px 8px 62px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--c-text-muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 1px solid var(--c-border);
+  }
+
+  .cell { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .cell-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--c-text-muted);
+    font-weight: 600;
+    display: none;
+  }
+  @media (max-width: 1100px) {
+    .ov-row { grid-template-columns: 1fr 1fr; padding: 12px 18px; }
+    .ov-row-headers { display: none; }
+    .cell-label { display: block; }
+  }
+
+  .cell-strong { font-weight: 600; color: var(--c-text); }
+  .cell-soft { color: var(--c-text-soft); }
+  .cell-num { font-variant-numeric: tabular-nums; }
+
+  .pill-abc {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    width: fit-content;
+  }
+  .pill-abc.A { background: var(--c-success-bg); color: var(--c-success); }
+  .pill-abc.B { background: var(--c-warn-bg);    color: var(--c-warn); }
+  .pill-abc.C { background: var(--c-info-bg);    color: var(--c-info); }
+  .pill-abc.D { background: #F1F5F9; color: var(--c-text-muted); }
+
+  /* Inputs editables en cada fila */
+  .ov-input,
+  .ov-select {
+    padding: 6px 8px;
+    border: 1px solid var(--c-border);
+    border-radius: 6px;
+    background: #fff;
+    width: 100%;
+    font-size: 12px;
+    transition: border-color .15s;
+  }
+  .ov-input:focus,
+  .ov-select:focus {
+    outline: none;
+    border-color: var(--c-cyan);
+  }
+  .ov-textarea {
+    min-height: 32px;
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  .estado-select.estado-Pendiente   { border-color: var(--c-warn); color: var(--c-warn); font-weight: 600; }
+  .estado-select.estado-En.proceso,
+  .estado-select[data-estado="En proceso"] { border-color: var(--c-info); color: var(--c-info); font-weight: 600; }
+  .estado-select.estado-Resuelto    { border-color: var(--c-success); color: var(--c-success); font-weight: 600; }
+
+  .btn-save {
+    background: var(--c-cyan);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    transition: all .15s;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .btn-save:hover { background: #0FB5CE; transform: translateY(-1px); }
+  .btn-save:disabled {
+    background: var(--c-border);
+    color: var(--c-text-muted);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-save.saving {
+    background: var(--c-blue-mid);
+    pointer-events: none;
+  }
+  .btn-save.saved {
+    background: var(--c-success);
+    pointer-events: none;
+  }
+
+  /* ---- Toasts ---- */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--c-surface);
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 280px;
+    border-left: 4px solid var(--c-cyan);
+    animation: slideUp .25s ease-out;
+    pointer-events: auto;
+  }
+  .toast.success { border-left-color: var(--c-success); }
+  .toast.error   { border-left-color: var(--c-error); }
+  .toast.info    { border-left-color: var(--c-info); }
+  .toast .toast-icon { font-size: 16px; }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ---- Empty state ---- */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--c-text-soft);
+  }
+  .empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: .5;
+  }
+
+  .footer-info {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--c-text-muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-title">
+      <div class="header-icon">📋</div>
+      <div>
+        <h1>Seguimiento de OV Pendientes</h1>
+        <div class="subtitle">VAROSA · Backoffice / Compras</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-refresh" id="btnRefresh" title="Recargar datos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>
+        </svg>
+        Actualizar
+      </button>
+    </div>
+  </header>
+
+  <!-- KPIs -->
+  <section class="kpis" id="kpis"></section>
+
+  <!-- Filters -->
+  <section class="filters">
+    <div class="filter-group">
+      <label for="searchInput">Búsqueda libre</label>
+      <input type="text" id="searchInput" placeholder="Buscar por OV, cliente, producto, comentario...">
+    </div>
+    <div class="filter-group">
+      <label for="filterRuta">Ruta</label>
+      <select id="filterRuta"><option value="">Todas</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="filterVendedor">Vendedor</label>
+      <select id="filterVendedor"><option value="">Todos</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="filterEstado">Estado</label>
+      <select id="filterEstado">
+        <option value="">Todos (excl. Resuelto)</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="En proceso">En proceso</option>
+      </select>
+    </div>
+    <button class="btn-clear" id="btnClear">Limpiar</button>
+  </section>
+
+  <!-- Estado de carga -->
+  <div id="statusBar" class="status-bar">
+    <div class="spinner"></div>
+    <p>Cargando pendientes...</p>
+  </div>
+
+  <!-- Lista de productos -->
+  <main class="product-list" id="productList" style="display:none;"></main>
+
+  <div class="footer-info" id="footerInfo"></div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================================
+   VAROSA — OV Pendientes Widget
+   ============================================================ */
+const CONFIG = {
+  API_BASE: 'https://n8n-n8n.1efluw.easypanel.host/webhook',
+  EP_LISTAR:    '/ov-pendientes-listar',
+  EP_ACTUALIZAR:'/ov-pendientes-actualizar',
+  DEBUG: true   // pone TRUE para loguear el JSON crudo en consola
+};
+
+/* ----- Estado global ----- */
+const state = {
+  raw: [],         // datos crudos del GET
+  pendientes: [],  // pendientes normalizados (sin Resueltos)
+  filters: { search:'', ruta:'', vendedor:'', estado:'' },
+  expanded: new Set()
+};
+
+/* ============================================================
+   FETCH DE DATOS
+   ============================================================ */
+async function loadPendientes() {
+  showLoading();
+  try {
+    const res = await fetch(CONFIG.API_BASE + CONFIG.EP_LISTAR, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    if (CONFIG.DEBUG) {
+      console.group('🐛 DEBUG: respuesta GET ov-pendientes-listar');
+      console.log('Tipo:', Array.isArray(data) ? 'Array' : typeof data);
+      console.log('Estructura completa:', data);
+      if (Array.isArray(data) && data.length > 0) {
+        console.log('Primer registro (claves):', Object.keys(data[0]));
+        console.log('Primer registro (completo):', data[0]);
+      }
+      console.groupEnd();
+    }
+
+    // Normalizar: aceptar varias estructuras posibles
+    const records = normalizeResponse(data);
+    state.raw = records;
+
+    // Filtrar Resueltos (no se muestran en UI, según decisión)
+    state.pendientes = records.filter(r => normEstado(r.Estado) !== 'Resuelto');
+
+    populateFilters();
+    render();
+    updateFooter();
+  } catch (err) {
+    console.error('Error cargando pendientes:', err);
+    showError('No se pudieron cargar los pendientes. Detalle: ' + err.message);
+  }
+}
+
+/**
+ * El webhook puede devolver:
+ *   - un array de registros directamente
+ *   - { data: [...] }
+ *   - { records: [...] }
+ *   - { result: [...] }
+ * Esta función intenta encontrar el array.
+ */
+function normalizeResponse(data) {
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.data))    return data.data;
+  if (data && Array.isArray(data.records)) return data.records;
+  if (data && Array.isArray(data.result))  return data.result;
+  // Si viene { data: { ov_pendientes: [...] } } u otro nivel
+  if (data && typeof data === 'object') {
+    for (const v of Object.values(data)) {
+      if (Array.isArray(v)) return v;
+    }
+  }
+  console.warn('⚠️ Estructura de respuesta no reconocida. Revisá CONFIG.DEBUG=true en consola.');
+  return [];
+}
+
+function normEstado(e) {
+  if (!e) return 'Pendiente';
+  const s = String(e).trim();
+  if (/resuelto/i.test(s)) return 'Resuelto';
+  if (/proceso/i.test(s))  return 'En proceso';
+  return 'Pendiente';
+}
+
+/* ============================================================
+   FILTROS
+   ============================================================ */
+function populateFilters() {
+  const rutas     = unique(state.pendientes.map(r => r.Ruta)).sort();
+  const vendedores= unique(state.pendientes.map(r => r.Vendedor_Responsable)).sort();
+  fillSelect('filterRuta',     rutas,     'Todas');
+  fillSelect('filterVendedor', vendedores,'Todos');
+}
+function unique(arr) {
+  return Array.from(new Set(arr.filter(Boolean).map(x => String(x).trim())));
+}
+function fillSelect(id, items, defaultLabel) {
+  const sel = document.getElementById(id);
+  const current = sel.value;
+  sel.innerHTML = `<option value="">${defaultLabel}</option>` +
+    items.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
+  if (items.includes(current)) sel.value = current;
+}
+function applyFilters(records) {
+  const { search, ruta, vendedor, estado } = state.filters;
+  const q = search.trim().toLowerCase();
+  return records.filter(r => {
+    if (ruta && r.Ruta !== ruta) return false;
+    if (vendedor && r.Vendedor_Responsable !== vendedor) return false;
+    if (estado && normEstado(r.Estado) !== estado) return false;
+    if (q) {
+      const haystack = [
+        r.Numero_OV, r.Cliente, r.Producto, r.Comentario, r.Vendedor_Responsable, r.Ruta
+      ].map(x => (x ?? '').toString().toLowerCase()).join(' | ');
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render() {
+  hideStatus();
+  const list = document.getElementById('productList');
+  list.style.display = '';
+
+  const visibles = applyFilters(state.pendientes);
+  renderKPIs(visibles);
+
+  if (visibles.length === 0) {
+    list.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">🔍</div>
+        <strong>No hay pendientes que coincidan con los filtros.</strong>
+        <p>Probá limpiar los filtros o usar otros criterios.</p>
+      </div>`;
+    return;
+  }
+
+  // Agrupar por producto
+  const groups = groupByProduct(visibles);
+  list.innerHTML = groups.map(g => renderGroup(g)).join('');
+
+  // Wire interacciones
+  list.querySelectorAll('.product-header').forEach(h => {
+    h.addEventListener('click', () => toggleGroup(h.dataset.key));
+  });
+  list.querySelectorAll('.ov-input, .ov-select, .ov-textarea').forEach(el => {
+    el.addEventListener('input', onCellChange);
+    el.addEventListener('change', onCellChange);
+  });
+  list.querySelectorAll('.btn-save').forEach(btn => {
+    btn.addEventListener('click', () => saveRow(btn.dataset.id));
+  });
+}
+
+function renderKPIs(visibles) {
+  const totalLineas = visibles.length;
+  const totalMonto  = visibles.reduce((s,r) => s + (Number(r.Monto_Pendiente)||0), 0);
+  const enProceso   = visibles.filter(r => normEstado(r.Estado) === 'En proceso').length;
+  const productosUnicos = new Set(visibles.map(r => r.Producto)).size;
+
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi">
+      <div class="kpi-label">Líneas pendientes</div>
+      <div class="kpi-value">${totalLineas.toLocaleString('es-CR')}</div>
+      <div class="kpi-sub">visibles según filtros</div>
+    </div>
+    <div class="kpi gold">
+      <div class="kpi-label">Monto pendiente</div>
+      <div class="kpi-value">${formatMoneda(totalMonto)}</div>
+      <div class="kpi-sub">CRC, suma filtrada</div>
+    </div>
+    <div class="kpi info">
+      <div class="kpi-label">En proceso</div>
+      <div class="kpi-value">${enProceso}</div>
+      <div class="kpi-sub">con seguimiento activo</div>
+    </div>
+    <div class="kpi warn">
+      <div class="kpi-label">Productos únicos</div>
+      <div class="kpi-value">${productosUnicos}</div>
+      <div class="kpi-sub">SKUs diferentes</div>
+    </div>
+  `;
+}
+
+function groupByProduct(records) {
+  const map = new Map();
+  for (const r of records) {
+    const key = r.Producto || '(sin nombre)';
+    if (!map.has(key)) map.set(key, { key, producto: key, items: [] });
+    map.get(key).items.push(r);
+  }
+  // Ordenar items dentro del grupo: por Fecha_OV asc
+  for (const g of map.values()) {
+    g.items.sort((a,b) => parseFecha(a.Fecha_OV) - parseFecha(b.Fecha_OV));
+    g.totalCantidad = g.items.reduce((s,r) => s + (Number(r.Cantidad_Pendiente_Snapshot)||0), 0);
+    g.totalMonto    = g.items.reduce((s,r) => s + (Number(r.Monto_Pendiente)||0), 0);
+  }
+  // Ordenar grupos: por total monto desc
+  return Array.from(map.values()).sort((a,b) => b.totalMonto - a.totalMonto);
+}
+
+function renderGroup(g) {
+  const open = state.expanded.has(g.key);
+  const idSafe = encodeURIComponent(g.key);
+  return `
+    <div class="product-group ${open ? 'expanded' : ''}" data-product="${escapeAttr(g.key)}">
+      <div class="product-header" data-key="${escapeAttr(g.key)}">
+        <div class="chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+        <div>
+          <div class="product-name">${escapeHtml(g.producto)}</div>
+          <div class="product-meta">${g.items.length} OV${g.items.length === 1 ? '' : 's'} con esta línea pendiente</div>
+        </div>
+        <div class="product-stat">
+          <div class="product-stat-value">${g.totalCantidad.toLocaleString('es-CR')}</div>
+          <div class="product-stat-label">Unid.</div>
+        </div>
+        <div class="product-stat">
+          <div class="product-stat-value">${formatMoneda(g.totalMonto)}</div>
+          <div class="product-stat-label">CRC</div>
+        </div>
+        <div class="badge-count">${g.items.length}</div>
+      </div>
+      ${open ? `
+      <div class="ov-list">
+        <div class="ov-row-headers" style="display: grid; grid-template-columns: minmax(140px, 1.2fr) minmax(180px, 1.6fr) 100px 90px 70px 60px minmax(180px, 2fr) 130px 110px 80px; gap: 12px;">
+          <div>OV / Vendedor</div>
+          <div>Cliente</div>
+          <div>Fecha OV</div>
+          <div style="text-align:right">Cant.</div>
+          <div style="text-align:right">Monto</div>
+          <div>ABC</div>
+          <div>Comentario</div>
+          <div>ETA</div>
+          <div>Estado</div>
+          <div></div>
+        </div>
+        ${g.items.map(r => renderRow(r)).join('')}
+      </div>` : ''}
+    </div>`;
+}
+
+function renderRow(r) {
+  const id = r.ID_Linea_OV;
+  const estado = normEstado(r.Estado);
+  const eta = formatFechaInput(r.ETA);
+  const abc = (r.Clasificacion_ABC || '').toString().toUpperCase().charAt(0);
+
+  return `
+    <div class="ov-row" data-id="${escapeAttr(id)}">
+      <div class="cell">
+        <span class="cell-label">OV / Vendedor</span>
+        <span class="cell-strong">${escapeHtml(r.Numero_OV ?? '')}</span>
+        <span class="cell-soft" style="font-size:11px;">${escapeHtml(r.Vendedor_Responsable ?? '')}</span>
+        <span class="cell-soft" style="font-size:10px;">${escapeHtml(r.Ruta ?? '')}</span>
+      </div>
+      <div class="cell">
+        <span class="cell-label">Cliente</span>
+        <span class="cell-strong">${escapeHtml(r.Cliente ?? '')}</span>
+      </div>
+      <div class="cell">
+        <span class="cell-label">Fecha OV</span>
+        <span class="cell-num">${escapeHtml(r.Fecha_OV ?? '')}</span>
+      </div>
+      <div class="cell" style="text-align:right">
+        <span class="cell-label">Cantidad</span>
+        <span class="cell-num cell-strong">${(Number(r.Cantidad_Pendiente_Snapshot)||0).toLocaleString('es-CR')}</span>
+      </div>
+      <div class="cell" style="text-align:right">
+        <span class="cell-label">Monto</span>
+        <span class="cell-num">${formatMoneda(r.Monto_Pendiente)}</span>
+      </div>
+      <div class="cell">
+        <span class="cell-label">ABC</span>
+        <span class="pill-abc ${['A','B','C'].includes(abc) ? abc : 'D'}">${abc || '–'}</span>
+      </div>
+      <div class="cell">
+        <span class="cell-label">Comentario</span>
+        <textarea class="ov-input ov-textarea" data-field="Comentario" data-id="${escapeAttr(id)}" placeholder="Anotar seguimiento...">${escapeHtml(r.Comentario ?? '')}</textarea>
+      </div>
+      <div class="cell">
+        <span class="cell-label">ETA</span>
+        <input type="date" class="ov-input" data-field="ETA" data-id="${escapeAttr(id)}" value="${eta}">
+      </div>
+      <div class="cell">
+        <span class="cell-label">Estado</span>
+        <select class="ov-select estado-select" data-field="Estado" data-id="${escapeAttr(id)}" data-estado="${estado}">
+          <option value="Pendiente"  ${estado==='Pendiente'  ? 'selected':''}>Pendiente</option>
+          <option value="En proceso" ${estado==='En proceso' ? 'selected':''}>En proceso</option>
+          <option value="Resuelto"   ${estado==='Resuelto'   ? 'selected':''}>Resuelto</option>
+        </select>
+      </div>
+      <div class="cell">
+        <span class="cell-label">&nbsp;</span>
+        <button class="btn-save" data-id="${escapeAttr(id)}" disabled>Guardar</button>
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   EDICIÓN / GUARDADO
+   ============================================================ */
+const dirtyMap = new Map(); // id -> { Comentario?, ETA?, Estado? }
+
+function onCellChange(e) {
+  const el = e.target;
+  const id = el.dataset.id;
+  const field = el.dataset.field;
+  if (!id || !field) return;
+
+  const original = state.pendientes.find(r => r.ID_Linea_OV === id);
+  if (!original) return;
+
+  const newVal = el.value;
+  const oldVal = field === 'ETA' ? formatFechaInput(original.ETA) :
+                 field === 'Estado' ? normEstado(original.Estado) :
+                 (original[field] ?? '');
+
+  const current = dirtyMap.get(id) || {};
+  if (String(newVal) !== String(oldVal)) {
+    current[field] = newVal;
+  } else {
+    delete current[field];
+  }
+
+  if (Object.keys(current).length === 0) {
+    dirtyMap.delete(id);
+  } else {
+    dirtyMap.set(id, current);
+  }
+
+  // Update visual
+  const row = document.querySelector(`.ov-row[data-id="${cssEscape(id)}"]`);
+  if (row) {
+    row.classList.toggle('dirty', dirtyMap.has(id));
+    const btn = row.querySelector('.btn-save');
+    if (btn) btn.disabled = !dirtyMap.has(id);
+  }
+
+  // Update select color cuando cambia estado
+  if (field === 'Estado') {
+    el.dataset.estado = newVal;
+  }
+}
+
+async function saveRow(id) {
+  const changes = dirtyMap.get(id);
+  if (!changes) return;
+  const row = document.querySelector(`.ov-row[data-id="${cssEscape(id)}"]`);
+  const btn = row?.querySelector('.btn-save');
+  if (!btn) return;
+
+  btn.classList.add('saving');
+  btn.textContent = 'Guardando...';
+  btn.disabled = true;
+
+  // Construir payload
+  const payload = { ID_Linea_OV: id };
+  if ('Comentario' in changes) payload.Comentario = changes.Comentario;
+  if ('Estado'     in changes) payload.Estado     = changes.Estado;
+  if ('ETA'        in changes) payload.ETA        = changes.ETA; // YYYY-MM-DD del input date
+
+  try {
+    const res = await fetch(CONFIG.API_BASE + CONFIG.EP_ACTUALIZAR, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + (data.message || ''));
+
+    // Actualizar registro en estado local para que el render refleje
+    const original = state.pendientes.find(r => r.ID_Linea_OV === id);
+    if (original) {
+      if ('Comentario' in changes) original.Comentario = changes.Comentario;
+      if ('Estado'     in changes) original.Estado     = changes.Estado;
+      if ('ETA'        in changes) original.ETA        = changes.ETA;
+    }
+
+    dirtyMap.delete(id);
+    btn.classList.remove('saving');
+    btn.classList.add('saved');
+    btn.textContent = '✓ Guardado';
+    row.classList.remove('dirty');
+    showToast('success', 'Cambio guardado correctamente');
+
+    // Si el estado cambió a Resuelto, ocultar la fila al re-renderizar
+    if (changes.Estado === 'Resuelto') {
+      // Quitar de pendientes y re-render
+      state.pendientes = state.pendientes.filter(r => normEstado(r.Estado) !== 'Resuelto');
+      setTimeout(render, 600);
+    } else {
+      setTimeout(() => {
+        btn.classList.remove('saved');
+        btn.textContent = 'Guardar';
+        btn.disabled = true;
+      }, 1500);
+    }
+
+  } catch (err) {
+    console.error('Error guardando:', err);
+    btn.classList.remove('saving');
+    btn.textContent = 'Reintentar';
+    btn.disabled = false;
+    showToast('error', 'Error al guardar: ' + err.message);
+  }
+}
+
+/* ============================================================
+   UI HELPERS
+   ============================================================ */
+function toggleGroup(key) {
+  if (state.expanded.has(key)) state.expanded.delete(key);
+  else state.expanded.add(key);
+  render();
+}
+
+function showLoading() {
+  document.getElementById('statusBar').style.display = '';
+  document.getElementById('statusBar').innerHTML = `
+    <div class="spinner"></div>
+    <p>Cargando pendientes...</p>`;
+  document.getElementById('productList').style.display = 'none';
+  document.getElementById('kpis').innerHTML = '';
+}
+function hideStatus() {
+  document.getElementById('statusBar').style.display = 'none';
+}
+function showError(msg) {
+  document.getElementById('statusBar').style.display = '';
+  document.getElementById('statusBar').className = 'status-bar error';
+  document.getElementById('statusBar').innerHTML = `
+    <div style="font-size:32px;">⚠️</div>
+    <p><strong>${escapeHtml(msg)}</strong></p>
+    <p style="margin-top:8px;">Probá refrescar. Si persiste, revisá el endpoint en n8n.</p>`;
+  document.getElementById('productList').style.display = 'none';
+}
+function updateFooter() {
+  const now = new Date();
+  document.getElementById('footerInfo').textContent =
+    `Actualizado ${now.toLocaleString('es-CR')} · Total registros: ${state.raw.length} · Visibles (excl. Resueltos): ${state.pendientes.length}`;
+}
+
+function showToast(type, msg) {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+  t.innerHTML = `<span class="toast-icon">${icon}</span><span>${escapeHtml(msg)}</span>`;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transition = 'opacity .3s';
+    setTimeout(() => t.remove(), 300);
+  }, 3500);
+}
+
+/* ============================================================
+   FORMATTERS
+   ============================================================ */
+function formatMoneda(n) {
+  const v = Number(n) || 0;
+  return '₡' + Math.round(v).toLocaleString('es-CR');
+}
+function parseFecha(s) {
+  if (!s) return Infinity;
+  // Soporta DD-Mon-YYYY (formato Creator) o YYYY-MM-DD
+  if (typeof s === 'string') {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s).getTime();
+    const meses = { Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11 };
+    const m = s.match(/^(\d{1,2})-(\w{3})-(\d{4})$/);
+    if (m) return new Date(parseInt(m[3]), meses[m[2]] ?? 0, parseInt(m[1])).getTime();
+  }
+  return new Date(s).getTime() || Infinity;
+}
+function formatFechaInput(s) {
+  // Convierte DD-Mon-YYYY a YYYY-MM-DD para <input type=date>
+  if (!s) return '';
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0,10);
+  const meses = { Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12' };
+  const m = String(s).match(/^(\d{1,2})-(\w{3})-(\d{4})$/);
+  if (m) return `${m[3]}-${meses[m[2]]||'01'}-${m[1].padStart(2,'0')}`;
+  return '';
+}
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[c]));
+}
+function escapeAttr(s) { return escapeHtml(s).replace(/"/g,'&quot;'); }
+function cssEscape(s) {
+  // Escapa para usar en querySelector
+  return String(s).replace(/(["\\#.:;?+*~'`!@$%^&={}|<>()\[\],\/])/g,'\\$1');
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.getElementById('searchInput').addEventListener('input', e => {
+  state.filters.search = e.target.value;
+  render();
+});
+['filterRuta','filterVendedor','filterEstado'].forEach(id => {
+  document.getElementById(id).addEventListener('change', e => {
+    const key = id.replace('filter','').toLowerCase();
+    state.filters[key] = e.target.value;
+    render();
+  });
+});
+document.getElementById('btnClear').addEventListener('click', () => {
+  state.filters = { search:'', ruta:'', vendedor:'', estado:'' };
+  document.getElementById('searchInput').value = '';
+  document.getElementById('filterRuta').value = '';
+  document.getElementById('filterVendedor').value = '';
+  document.getElementById('filterEstado').value = '';
+  render();
+});
+document.getElementById('btnRefresh').addEventListener('click', async () => {
+  const btn = document.getElementById('btnRefresh');
+  btn.classList.add('loading');
+  await loadPendientes();
+  btn.classList.remove('loading');
+});
+
+// First load
+loadPendientes();
+</script>
+</body>
+</html>
