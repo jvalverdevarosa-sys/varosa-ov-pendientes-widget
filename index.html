@@ -9,8 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   /* ==========================================================
-     VAROSA — OV Pendientes Widget
-     Design tokens
+     VAROSA — OV Pendientes Widget  v3 (refresh + snapshot)
      ========================================================== */
   :root {
     --c-cyan:        #15C9E4;
@@ -56,16 +55,8 @@
   button { font-family: inherit; cursor: pointer; border: none; background: none; }
   input, select, textarea { font-family: inherit; font-size: inherit; }
 
-  /* ==========================================================
-     Layout
-     ========================================================== */
-  .app {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 24px;
-  }
+  .app { max-width: 1400px; margin: 0 auto; padding: 24px; }
 
-  /* ---- Header ---- */
   .header {
     background: linear-gradient(135deg, var(--c-blue-dark) 0%, var(--c-blue-mid) 100%);
     color: #fff;
@@ -93,12 +84,7 @@
     font-weight: 700;
     letter-spacing: -.01em;
   }
-  .header .subtitle {
-    font-size: 12px;
-    opacity: .8;
-    font-weight: 500;
-    margin-top: 2px;
-  }
+  .header .subtitle { font-size: 12px; opacity: .8; font-weight: 500; margin-top: 2px; }
   .header-actions { display: flex; align-items: center; gap: 12px; }
   .btn-refresh {
     background: rgba(255,255,255,.15);
@@ -116,7 +102,6 @@
   .btn-refresh.loading svg { animation: spin 1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ---- KPIs ---- */
   .kpis {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -133,27 +118,10 @@
   .kpi.warn  { border-left-color: var(--c-warn); }
   .kpi.info  { border-left-color: var(--c-info); }
   .kpi.gold  { border-left-color: var(--c-yellow); }
-  .kpi-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    color: var(--c-text-muted);
-  }
-  .kpi-value {
-    font-family: var(--font-display);
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--c-blue-dark);
-    margin-top: 4px;
-  }
-  .kpi-sub {
-    font-size: 11px;
-    color: var(--c-text-soft);
-    margin-top: 2px;
-  }
+  .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--c-text-muted); }
+  .kpi-value { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--c-blue-dark); margin-top: 4px; }
+  .kpi-sub { font-size: 11px; color: var(--c-text-soft); margin-top: 2px; }
 
-  /* ---- Filters ---- */
   .filters {
     background: var(--c-surface);
     border-radius: var(--radius);
@@ -165,19 +133,10 @@
     gap: 10px;
     align-items: end;
   }
-  @media (max-width: 900px) {
-    .filters { grid-template-columns: 1fr 1fr; }
-  }
+  @media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } }
   .filter-group { display: flex; flex-direction: column; gap: 4px; }
-  .filter-group label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--c-text-muted);
-    text-transform: uppercase;
-    letter-spacing: .04em;
-  }
-  .filter-group input,
-  .filter-group select {
+  .filter-group label { font-size: 11px; font-weight: 600; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .filter-group input, .filter-group select {
     padding: 9px 12px;
     border: 1px solid var(--c-border);
     border-radius: 8px;
@@ -186,12 +145,7 @@
     transition: border-color .15s, background .15s;
     width: 100%;
   }
-  .filter-group input:focus,
-  .filter-group select:focus {
-    outline: none;
-    border-color: var(--c-cyan);
-    background: #fff;
-  }
+  .filter-group input:focus, .filter-group select:focus { outline: none; border-color: var(--c-cyan); background: #fff; }
   .btn-clear {
     padding: 9px 14px;
     background: var(--c-bg);
@@ -205,38 +159,15 @@
   }
   .btn-clear:hover { background: #fff; color: var(--c-text); }
 
-  /* ---- Estado / loading / error ---- */
-  .status-bar {
-    background: var(--c-surface);
-    border-radius: var(--radius);
-    padding: 60px 20px;
-    text-align: center;
-    box-shadow: var(--shadow-sm);
-  }
+  .status-bar { background: var(--c-surface); border-radius: var(--radius); padding: 60px 20px; text-align: center; box-shadow: var(--shadow-sm); }
   .status-bar.error { color: var(--c-error); }
   .status-bar p { color: var(--c-text-soft); margin-top: 8px; font-size: 13px; }
-  .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--c-border);
-    border-top-color: var(--c-cyan);
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
-    margin: 0 auto;
-  }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--c-border); border-top-color: var(--c-cyan); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
 
-  /* ---- Lista de productos (grupos) ---- */
   .product-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .product-group {
-    background: var(--c-surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    transition: box-shadow .2s;
-  }
+  .product-group { background: var(--c-surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; transition: box-shadow .2s; }
   .product-group:hover { box-shadow: var(--shadow); }
   .product-group.expanded { box-shadow: var(--shadow); }
-
   .product-header {
     display: grid;
     grid-template-columns: 28px 1fr auto auto auto;
@@ -248,65 +179,18 @@
     transition: background .15s;
   }
   .product-header:hover { background: #FAFBFD; }
-
-  .chevron {
-    width: 22px; height: 22px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--c-text-muted);
-    transition: transform .2s;
-  }
+  .chevron { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; color: var(--c-text-muted); transition: transform .2s; }
   .product-group.expanded .chevron { transform: rotate(90deg); color: var(--c-blue-mid); }
   .chevron svg { width: 14px; height: 14px; }
+  .product-name { font-weight: 600; color: var(--c-text); font-size: 14px; line-height: 1.35; }
+  .product-meta { font-size: 12px; color: var(--c-text-muted); margin-top: 2px; }
+  .product-stat { text-align: right; min-width: 80px; }
+  .product-stat-value { font-family: var(--font-display); font-weight: 700; color: var(--c-blue-dark); font-size: 16px; line-height: 1.1; }
+  .product-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--c-text-muted); font-weight: 600; margin-top: 2px; }
+  .badge-count { background: var(--c-info-bg); color: var(--c-info); padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
 
-  .product-name {
-    font-weight: 600;
-    color: var(--c-text);
-    font-size: 14px;
-    line-height: 1.35;
-  }
-  .product-meta {
-    font-size: 12px;
-    color: var(--c-text-muted);
-    margin-top: 2px;
-  }
-
-  .product-stat {
-    text-align: right;
-    min-width: 80px;
-  }
-  .product-stat-value {
-    font-family: var(--font-display);
-    font-weight: 700;
-    color: var(--c-blue-dark);
-    font-size: 16px;
-    line-height: 1.1;
-  }
-  .product-stat-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: var(--c-text-muted);
-    font-weight: 600;
-    margin-top: 2px;
-  }
-
-  .badge-count {
-    background: var(--c-info-bg);
-    color: var(--c-info);
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-
-  /* ---- Detalle: filas de OVs ---- */
-  .ov-list {
-    display: none;
-    border-top: 1px solid var(--c-border);
-    background: #FAFBFD;
-  }
+  .ov-list { display: none; border-top: 1px solid var(--c-border); background: #FAFBFD; }
   .product-group.expanded .ov-list { display: block; }
-
   .ov-row {
     display: grid;
     grid-template-columns: minmax(140px, 1.2fr) minmax(180px, 1.6fr) 100px 90px 70px 60px minmax(180px, 2fr) 130px 110px 80px;
@@ -320,7 +204,6 @@
   .ov-row:hover { background: #fff; }
   .ov-row.dirty { background: #FFFBEB; }
   .ov-row.dirty:hover { background: #FFF8DB; }
-
   .ov-row-headers {
     background: #EEF2F8;
     padding: 8px 18px 8px 62px;
@@ -331,42 +214,20 @@
     letter-spacing: .04em;
     border-bottom: 1px solid var(--c-border);
   }
-
   .cell { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  .cell-label {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: .03em;
-    color: var(--c-text-muted);
-    font-weight: 600;
-    display: none;
-  }
-  @media (max-width: 1100px) {
-    .ov-row { grid-template-columns: 1fr 1fr; padding: 12px 18px; }
-    .ov-row-headers { display: none; }
-    .cell-label { display: block; }
-  }
-
+  .cell-label { font-size: 9px; text-transform: uppercase; letter-spacing: .03em; color: var(--c-text-muted); font-weight: 600; display: none; }
+  @media (max-width: 1100px) { .ov-row { grid-template-columns: 1fr 1fr; padding: 12px 18px; } .ov-row-headers { display: none; } .cell-label { display: block; } }
   .cell-strong { font-weight: 600; color: var(--c-text); }
   .cell-soft { color: var(--c-text-soft); }
   .cell-num { font-variant-numeric: tabular-nums; }
 
-  .pill-abc {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    width: fit-content;
-  }
+  .pill-abc { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; width: fit-content; }
   .pill-abc.A { background: var(--c-success-bg); color: var(--c-success); }
-  .pill-abc.B { background: var(--c-warn-bg);    color: var(--c-warn); }
-  .pill-abc.C { background: var(--c-info-bg);    color: var(--c-info); }
+  .pill-abc.B { background: var(--c-warn-bg); color: var(--c-warn); }
+  .pill-abc.C { background: var(--c-info-bg); color: var(--c-info); }
   .pill-abc.D { background: #F1F5F9; color: var(--c-text-muted); }
 
-  /* Inputs editables en cada fila */
-  .ov-input,
-  .ov-select {
+  .ov-input, .ov-select {
     padding: 6px 8px;
     border: 1px solid var(--c-border);
     border-radius: 6px;
@@ -375,21 +236,12 @@
     font-size: 12px;
     transition: border-color .15s;
   }
-  .ov-input:focus,
-  .ov-select:focus {
-    outline: none;
-    border-color: var(--c-cyan);
-  }
-  .ov-textarea {
-    min-height: 32px;
-    resize: vertical;
-    font-family: inherit;
-  }
+  .ov-input:focus, .ov-select:focus { outline: none; border-color: var(--c-cyan); }
+  .ov-textarea { min-height: 32px; resize: vertical; font-family: inherit; }
 
-  .estado-select.estado-Pendiente   { border-color: var(--c-warn); color: var(--c-warn); font-weight: 600; }
-  .estado-select.estado-En.proceso,
-  .estado-select[data-estado="En proceso"] { border-color: var(--c-info); color: var(--c-info); font-weight: 600; }
-  .estado-select.estado-Resuelto    { border-color: var(--c-success); color: var(--c-success); font-weight: 600; }
+  .estado-select.estado-Pendiente { border-color: var(--c-warn); color: var(--c-warn); font-weight: 600; }
+  .estado-select.estado-En.proceso, .estado-select[data-estado="En proceso"] { border-color: var(--c-info); color: var(--c-info); font-weight: 600; }
+  .estado-select.estado-Resuelto { border-color: var(--c-success); color: var(--c-success); font-weight: 600; }
 
   .btn-save {
     background: var(--c-cyan);
@@ -404,22 +256,10 @@
     letter-spacing: .03em;
   }
   .btn-save:hover { background: #0FB5CE; transform: translateY(-1px); }
-  .btn-save:disabled {
-    background: var(--c-border);
-    color: var(--c-text-muted);
-    cursor: not-allowed;
-    transform: none;
-  }
-  .btn-save.saving {
-    background: var(--c-blue-mid);
-    pointer-events: none;
-  }
-  .btn-save.saved {
-    background: var(--c-success);
-    pointer-events: none;
-  }
+  .btn-save:disabled { background: var(--c-border); color: var(--c-text-muted); cursor: not-allowed; transform: none; }
+  .btn-save.saving { background: var(--c-blue-mid); pointer-events: none; }
+  .btn-save.saved { background: var(--c-success); pointer-events: none; }
 
-  /* ---- Toasts ---- */
   .toast-container {
     position: fixed;
     bottom: 24px;
@@ -436,49 +276,35 @@
     padding: 12px 16px;
     box-shadow: var(--shadow-lg);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     font-size: 13px;
     font-weight: 500;
     min-width: 280px;
+    max-width: 420px;
     border-left: 4px solid var(--c-cyan);
     animation: slideUp .25s ease-out;
     pointer-events: auto;
   }
   .toast.success { border-left-color: var(--c-success); }
-  .toast.error   { border-left-color: var(--c-error); }
-  .toast.info    { border-left-color: var(--c-info); }
-  .toast .toast-icon { font-size: 16px; }
-  @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to   { transform: translateY(0); opacity: 1; }
-  }
+  .toast.error { border-left-color: var(--c-error); }
+  .toast.warn { border-left-color: var(--c-warn); }
+  .toast.info { border-left-color: var(--c-info); }
+  .toast .toast-icon { font-size: 16px; flex-shrink: 0; }
+  .toast-body { display: flex; flex-direction: column; gap: 4px; }
+  .toast-body strong { font-weight: 700; }
+  .toast-body small { font-size: 11px; color: var(--c-text-soft); font-weight: 500; line-height: 1.4; }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-  /* ---- Empty state ---- */
-  .empty {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--c-text-soft);
-  }
-  .empty-icon {
-    font-size: 40px;
-    margin-bottom: 12px;
-    opacity: .5;
-  }
-
-  .footer-info {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 11px;
-    color: var(--c-text-muted);
-  }
+  .empty { text-align: center; padding: 60px 20px; color: var(--c-text-soft); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: .5; }
+  .footer-info { margin-top: 20px; text-align: center; font-size: 11px; color: var(--c-text-muted); }
 </style>
 </head>
 <body>
 
 <div class="app">
 
-  <!-- Header -->
   <header class="header">
     <div class="header-title">
       <div class="header-icon">📋</div>
@@ -497,10 +323,8 @@
     </div>
   </header>
 
-  <!-- KPIs -->
   <section class="kpis" id="kpis"></section>
 
-  <!-- Filters -->
   <section class="filters">
     <div class="filter-group">
       <label for="searchInput">Búsqueda libre</label>
@@ -525,69 +349,50 @@
     <button class="btn-clear" id="btnClear">Limpiar</button>
   </section>
 
-  <!-- Estado de carga -->
   <div id="statusBar" class="status-bar">
     <div class="spinner"></div>
     <p>Cargando pendientes...</p>
   </div>
 
-  <!-- Lista de productos -->
   <main class="product-list" id="productList" style="display:none;"></main>
 
   <div class="footer-info" id="footerInfo"></div>
 </div>
 
-<!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
 /* ============================================================
-   VAROSA — OV Pendientes Widget
+   VAROSA — OV Pendientes Widget  v3
+   Cambios respecto a v2:
+   - CONFIG.DEBUG = false (apagado para producción)
+   - saveRow() hace refresh silencioso del registro antes de PATCH
+   - Detecta conflictos (otro usuario editó) y bloquea el guardado
+   - Envía _previo y _nuevo de ETA/Estado/Comentario para que el
+     workflow de notificaciones detecte qué cambió
    ============================================================ */
 const CONFIG = {
   API_BASE: 'https://n8n-n8n.1efluw.easypanel.host/webhook',
   EP_LISTAR:    '/ov-pendientes-listar',
   EP_ACTUALIZAR:'/ov-pendientes-actualizar',
-  DEBUG: true   // pone TRUE para loguear el JSON crudo en consola
+  DEBUG: false   // apagado en producción
 };
 
-/* ----- Estado global ----- */
 const state = {
-  raw: [],         // datos crudos del GET
-  pendientes: [],  // pendientes normalizados (sin Resueltos)
+  raw: [],
+  pendientes: [],
   filters: { search:'', ruta:'', vendedor:'', estado:'' },
   expanded: new Set()
 };
 
 /* ============================================================
-   FETCH DE DATOS
+   FETCH DE DATOS (GET listar)
    ============================================================ */
 async function loadPendientes() {
   showLoading();
   try {
-    const res = await fetch(CONFIG.API_BASE + CONFIG.EP_LISTAR, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-
-    if (CONFIG.DEBUG) {
-      console.group('🐛 DEBUG: respuesta GET ov-pendientes-listar');
-      console.log('Tipo:', Array.isArray(data) ? 'Array' : typeof data);
-      console.log('Estructura completa:', data);
-      if (Array.isArray(data) && data.length > 0) {
-        console.log('Primer registro (claves):', Object.keys(data[0]));
-        console.log('Primer registro (completo):', data[0]);
-      }
-      console.groupEnd();
-    }
-
-    // Normalizar: aceptar varias estructuras posibles
-    const records = normalizeResponse(data);
+    const records = await fetchListado();
     state.raw = records;
-
-    // Filtrar Resueltos (no se muestran en UI, según decisión)
     state.pendientes = records.filter(r => normEstado(r.Estado) !== 'Resuelto');
 
     populateFilters();
@@ -600,25 +405,38 @@ async function loadPendientes() {
 }
 
 /**
- * El webhook puede devolver:
- *   - un array de registros directamente
- *   - { data: [...] }
- *   - { records: [...] }
- *   - { result: [...] }
- * Esta función intenta encontrar el array.
+ * Hace el GET al webhook listar y devuelve el array de registros.
+ * Usado tanto por loadPendientes() como por el refresh silencioso.
  */
+async function fetchListado() {
+  const res = await fetch(CONFIG.API_BASE + CONFIG.EP_LISTAR, {
+    method: 'GET',
+    headers: { 'Accept': 'application/json' }
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+
+  if (CONFIG.DEBUG) {
+    console.group('🐛 DEBUG: respuesta GET ov-pendientes-listar');
+    console.log('Estructura completa:', data);
+    console.groupEnd();
+  }
+
+  return normalizeResponse(data);
+}
+
 function normalizeResponse(data) {
   if (Array.isArray(data)) return data;
   if (data && Array.isArray(data.data))    return data.data;
   if (data && Array.isArray(data.records)) return data.records;
   if (data && Array.isArray(data.result))  return data.result;
-  // Si viene { data: { ov_pendientes: [...] } } u otro nivel
+  if (data && Array.isArray(data.pendientes)) return data.pendientes;
   if (data && typeof data === 'object') {
     for (const v of Object.values(data)) {
       if (Array.isArray(v)) return v;
     }
   }
-  console.warn('⚠️ Estructura de respuesta no reconocida. Revisá CONFIG.DEBUG=true en consola.');
+  console.warn('⚠️ Estructura de respuesta no reconocida.');
   return [];
 }
 
@@ -634,14 +452,12 @@ function normEstado(e) {
    FILTROS
    ============================================================ */
 function populateFilters() {
-  const rutas     = unique(state.pendientes.map(r => r.Ruta)).sort();
-  const vendedores= unique(state.pendientes.map(r => r.Vendedor_Responsable)).sort();
-  fillSelect('filterRuta',     rutas,     'Todas');
-  fillSelect('filterVendedor', vendedores,'Todos');
+  const rutas = unique(state.pendientes.map(r => r.Ruta)).sort();
+  const vendedores = unique(state.pendientes.map(r => r.Vendedor_Responsable)).sort();
+  fillSelect('filterRuta', rutas, 'Todas');
+  fillSelect('filterVendedor', vendedores, 'Todos');
 }
-function unique(arr) {
-  return Array.from(new Set(arr.filter(Boolean).map(x => String(x).trim())));
-}
+function unique(arr) { return Array.from(new Set(arr.filter(Boolean).map(x => String(x).trim()))); }
 function fillSelect(id, items, defaultLabel) {
   const sel = document.getElementById(id);
   const current = sel.value;
@@ -687,11 +503,9 @@ function render() {
     return;
   }
 
-  // Agrupar por producto
   const groups = groupByProduct(visibles);
   list.innerHTML = groups.map(g => renderGroup(g)).join('');
 
-  // Wire interacciones
   list.querySelectorAll('.product-header').forEach(h => {
     h.addEventListener('click', () => toggleGroup(h.dataset.key));
   });
@@ -741,19 +555,16 @@ function groupByProduct(records) {
     if (!map.has(key)) map.set(key, { key, producto: key, items: [] });
     map.get(key).items.push(r);
   }
-  // Ordenar items dentro del grupo: por Fecha_OV asc
   for (const g of map.values()) {
     g.items.sort((a,b) => parseFecha(a.Fecha_OV) - parseFecha(b.Fecha_OV));
     g.totalCantidad = g.items.reduce((s,r) => s + (Number(r.Cantidad_Pendiente_Snapshot)||0), 0);
     g.totalMonto    = g.items.reduce((s,r) => s + (Number(r.Monto_Pendiente)||0), 0);
   }
-  // Ordenar grupos: por total monto desc
   return Array.from(map.values()).sort((a,b) => b.totalMonto - a.totalMonto);
 }
 
 function renderGroup(g) {
   const open = state.expanded.has(g.key);
-  const idSafe = encodeURIComponent(g.key);
   return `
     <div class="product-group ${open ? 'expanded' : ''}" data-product="${escapeAttr(g.key)}">
       <div class="product-header" data-key="${escapeAttr(g.key)}">
@@ -853,7 +664,7 @@ function renderRow(r) {
 }
 
 /* ============================================================
-   EDICIÓN / GUARDADO
+   EDICIÓN / GUARDADO  (con refresh silencioso + snapshot previo)
    ============================================================ */
 const dirtyMap = new Map(); // id -> { Comentario?, ETA?, Estado? }
 
@@ -878,26 +689,21 @@ function onCellChange(e) {
     delete current[field];
   }
 
-  if (Object.keys(current).length === 0) {
-    dirtyMap.delete(id);
-  } else {
-    dirtyMap.set(id, current);
-  }
+  if (Object.keys(current).length === 0) dirtyMap.delete(id);
+  else dirtyMap.set(id, current);
 
-  // Update visual
   const row = document.querySelector(`.ov-row[data-id="${cssEscape(id)}"]`);
   if (row) {
     row.classList.toggle('dirty', dirtyMap.has(id));
     const btn = row.querySelector('.btn-save');
     if (btn) btn.disabled = !dirtyMap.has(id);
   }
-
-  // Update select color cuando cambia estado
-  if (field === 'Estado') {
-    el.dataset.estado = newVal;
-  }
+  if (field === 'Estado') el.dataset.estado = newVal;
 }
 
+/**
+ * Guardar una fila con el flujo: refresh silencioso → detectar conflicto → PATCH
+ */
 async function saveRow(id) {
   const changes = dirtyMap.get(id);
   if (!changes) return;
@@ -909,26 +715,83 @@ async function saveRow(id) {
   btn.textContent = 'Guardando...';
   btn.disabled = true;
 
-  // Buscar el registro original para obtener su creator_ID (ID interno de Creator)
-  const originalRec = state.pendientes.find(r => r.ID_Linea_OV === id);
-  if (!originalRec || !originalRec.creator_ID) {
-    btn.classList.remove('saving');
-    btn.textContent = 'Reintentar';
-    btn.disabled = false;
-    showToast('error', 'No se encontró el ID interno de Creator para este registro');
-    return;
-  }
-
-  // Construir payload: el webhook PATCH espera creator_ID + campos a actualizar
-  const payload = {
-    creator_ID:  originalRec.creator_ID,
-    ID_Linea_OV: id  // se mantiene por trazabilidad/logs en el webhook
-  };
-  if ('Comentario' in changes) payload.Comentario = changes.Comentario;
-  if ('Estado'     in changes) payload.Estado     = changes.Estado;
-  if ('ETA'        in changes) payload.ETA        = changes.ETA; // YYYY-MM-DD del input date
-
   try {
+    // --- Paso 1: refresh silencioso para obtener el snapshot FRESCO del servidor ---
+    const registrosFrescos = await fetchListado();
+    const snapshotFresco = registrosFrescos.find(r => r.ID_Linea_OV === id);
+
+    if (!snapshotFresco) {
+      throw new Error('El registro ya no existe (puede haber sido resuelto por otro usuario)');
+    }
+    if (!snapshotFresco.creator_ID) {
+      throw new Error('Falta creator_ID en el snapshot fresco');
+    }
+
+    // --- Paso 2: detectar conflicto ---
+    // Comparar valores del snapshot fresco contra los que el widget tenía en state
+    // EN LOS CAMPOS QUE EL USUARIO NO ESTÁ EDITANDO.
+    // Si difieren en un campo NO editado por el usuario → conflicto (otro cambió algo).
+    const snapshotLocal = state.pendientes.find(r => r.ID_Linea_OV === id);
+    if (snapshotLocal) {
+      const conflictos = detectarConflictos(snapshotLocal, snapshotFresco, changes);
+      if (conflictos.length > 0) {
+        // Refrescar state local con el fresco
+        syncRegistroEnState(snapshotFresco);
+        btn.classList.remove('saving');
+        btn.textContent = 'Reintentar';
+        btn.disabled = false;
+        dirtyMap.delete(id);
+        showToastConflicto(conflictos);
+        setTimeout(render, 300);
+        return;
+      }
+    }
+
+    // --- Paso 3: armar payload con snapshot previo + cambios nuevos ---
+    const etaPreviaStr = formatFechaInput(snapshotFresco.ETA) || null;  // YYYY-MM-DD o null
+    const estadoPrevio = normEstado(snapshotFresco.Estado);
+    const comentarioPrevio = snapshotFresco.Comentario || '';
+
+    // Los valores "nuevos": si el usuario los editó → usar lo editado.
+    // Si no los editó → mantener el valor fresco del servidor (no cambia).
+    const etaNuevaStr = ('ETA' in changes) ? (changes.ETA || null) : etaPreviaStr;
+    const estadoNuevo = ('Estado' in changes) ? changes.Estado : estadoPrevio;
+    const comentarioNuevo = ('Comentario' in changes) ? changes.Comentario : comentarioPrevio;
+
+    const payload = {
+      // Identificadores
+      creator_ID: snapshotFresco.creator_ID,
+      ID_Linea_OV: id,
+
+      // Datos de contexto para el correo (desde snapshot fresco)
+      Numero_OV: snapshotFresco.Numero_OV || '',
+      Cliente: snapshotFresco.Cliente || '',
+      Producto: snapshotFresco.Producto || '',
+      Cantidad_Pendiente_Snapshot: Number(snapshotFresco.Cantidad_Pendiente_Snapshot) || 0,
+      Vendedor_Responsable: snapshotFresco.Vendedor_Responsable || '',
+      Fecha_OV: snapshotFresco.Fecha_OV || '',
+      Ruta: snapshotFresco.Ruta || '',
+      Clasificacion_ABC: snapshotFresco.Clasificacion_ABC || '',
+      Monto_Pendiente: Number(snapshotFresco.Monto_Pendiente) || 0,
+
+      // Campos a actualizar (solo los que el usuario tocó)
+      // Nota: el workflow solo aplica los que estén presentes en el body.
+      ...( 'Comentario' in changes ? { Comentario: changes.Comentario } : {} ),
+      ...( 'ETA'        in changes ? { ETA: changes.ETA } : {} ),
+      ...( 'Estado'     in changes ? { Estado: changes.Estado } : {} ),
+
+      // Snapshot previo vs nuevo (para que el workflow de notificaciones decida)
+      eta_previa: etaPreviaStr,
+      eta_nueva: etaNuevaStr,
+      estado_previo: estadoPrevio,
+      estado_nuevo: estadoNuevo,
+      comentario_previo: comentarioPrevio,
+      comentario_nuevo: comentarioNuevo
+    };
+
+    if (CONFIG.DEBUG) console.log('PATCH payload:', payload);
+
+    // --- Paso 4: hacer el PATCH ---
     const res = await fetch(CONFIG.API_BASE + CONFIG.EP_ACTUALIZAR, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -937,13 +800,13 @@ async function saveRow(id) {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + (data.message || ''));
 
-    // Actualizar registro en estado local para que el render refleje
-    const original = state.pendientes.find(r => r.ID_Linea_OV === id);
-    if (original) {
-      if ('Comentario' in changes) original.Comentario = changes.Comentario;
-      if ('Estado'     in changes) original.Estado     = changes.Estado;
-      if ('ETA'        in changes) original.ETA        = changes.ETA;
-    }
+    // --- Paso 5: actualizar state local ---
+    syncRegistroEnState({
+      ...snapshotFresco,
+      Comentario: comentarioNuevo,
+      ETA: etaNuevaStr || '',
+      Estado: estadoNuevo
+    });
 
     dirtyMap.delete(id);
     btn.classList.remove('saving');
@@ -952,9 +815,8 @@ async function saveRow(id) {
     row.classList.remove('dirty');
     showToast('success', 'Cambio guardado correctamente');
 
-    // Si el estado cambió a Resuelto, ocultar la fila al re-renderizar
-    if (changes.Estado === 'Resuelto') {
-      // Quitar de pendientes y re-render
+    // Si el estado cambió a Resuelto, ocultar la fila
+    if (estadoNuevo === 'Resuelto') {
       state.pendientes = state.pendientes.filter(r => normEstado(r.Estado) !== 'Resuelto');
       setTimeout(render, 600);
     } else {
@@ -974,6 +836,74 @@ async function saveRow(id) {
   }
 }
 
+/**
+ * Compara el snapshot local vs el fresco y detecta qué cambió
+ * EN LOS CAMPOS QUE EL USUARIO NO ESTÁ EDITANDO.
+ * Devuelve un array de objetos { campo, valor_local, valor_fresco }.
+ * Si está vacío, no hay conflicto.
+ */
+function detectarConflictos(local, fresco, changes) {
+  const camposAComparar = ['Comentario', 'ETA', 'Estado'];
+  const conflictos = [];
+
+  for (const campo of camposAComparar) {
+    // Si el usuario está editando este campo, no importa que haya cambiado en el servidor:
+    // el valor del usuario gana.
+    if (campo in changes) continue;
+
+    let vLocal = local[campo] ?? '';
+    let vFresco = fresco[campo] ?? '';
+
+    if (campo === 'ETA') {
+      vLocal = formatFechaInput(vLocal);
+      vFresco = formatFechaInput(vFresco);
+    }
+    if (campo === 'Estado') {
+      vLocal = normEstado(vLocal);
+      vFresco = normEstado(vFresco);
+    }
+
+    if (String(vLocal) !== String(vFresco)) {
+      conflictos.push({ campo, local: vLocal, fresco: vFresco });
+    }
+  }
+
+  return conflictos;
+}
+
+/**
+ * Sincroniza un registro en state.pendientes y state.raw con los valores frescos.
+ */
+function syncRegistroEnState(snapshotFresco) {
+  const idx = state.pendientes.findIndex(r => r.ID_Linea_OV === snapshotFresco.ID_Linea_OV);
+  if (idx >= 0) state.pendientes[idx] = { ...state.pendientes[idx], ...snapshotFresco };
+
+  const idxRaw = state.raw.findIndex(r => r.ID_Linea_OV === snapshotFresco.ID_Linea_OV);
+  if (idxRaw >= 0) state.raw[idxRaw] = { ...state.raw[idxRaw], ...snapshotFresco };
+}
+
+/**
+ * Toast especial para el caso de conflicto: muestra los campos que cambiaron.
+ */
+function showToastConflicto(conflictos) {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast warn';
+  const campos = conflictos.map(x => x.campo).join(', ');
+  t.innerHTML = `
+    <span class="toast-icon">⚠️</span>
+    <div class="toast-body">
+      <strong>Conflicto detectado</strong>
+      <small>Otro usuario modificó este registro (${escapeHtml(campos)}) mientras editabas. Tu cambio NO se guardó. La vista fue refrescada con los datos actuales — revisá y volvé a aplicar tu edición si sigue siendo necesaria.</small>
+    </div>`;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transition = 'opacity .3s';
+    setTimeout(() => t.remove(), 300);
+  }, 8000); // toast más largo para que alcancen a leerlo
+}
+
 /* ============================================================
    UI HELPERS
    ============================================================ */
@@ -982,18 +912,13 @@ function toggleGroup(key) {
   else state.expanded.add(key);
   render();
 }
-
 function showLoading() {
   document.getElementById('statusBar').style.display = '';
-  document.getElementById('statusBar').innerHTML = `
-    <div class="spinner"></div>
-    <p>Cargando pendientes...</p>`;
+  document.getElementById('statusBar').innerHTML = `<div class="spinner"></div><p>Cargando pendientes...</p>`;
   document.getElementById('productList').style.display = 'none';
   document.getElementById('kpis').innerHTML = '';
 }
-function hideStatus() {
-  document.getElementById('statusBar').style.display = 'none';
-}
+function hideStatus() { document.getElementById('statusBar').style.display = 'none'; }
 function showError(msg) {
   document.getElementById('statusBar').style.display = '';
   document.getElementById('statusBar').className = 'status-bar error';
@@ -1008,13 +933,12 @@ function updateFooter() {
   document.getElementById('footerInfo').textContent =
     `Actualizado ${now.toLocaleString('es-CR')} · Total registros: ${state.raw.length} · Visibles (excl. Resueltos): ${state.pendientes.length}`;
 }
-
 function showToast(type, msg) {
   const c = document.getElementById('toastContainer');
   const t = document.createElement('div');
   t.className = 'toast ' + type;
   const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
-  t.innerHTML = `<span class="toast-icon">${icon}</span><span>${escapeHtml(msg)}</span>`;
+  t.innerHTML = `<span class="toast-icon">${icon}</span><div class="toast-body"><span>${escapeHtml(msg)}</span></div>`;
   c.appendChild(t);
   setTimeout(() => {
     t.style.opacity = '0';
@@ -1032,7 +956,6 @@ function formatMoneda(n) {
 }
 function parseFecha(s) {
   if (!s) return Infinity;
-  // Soporta DD-Mon-YYYY (formato Creator) o YYYY-MM-DD
   if (typeof s === 'string') {
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s).getTime();
     const meses = { Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11 };
@@ -1042,7 +965,6 @@ function parseFecha(s) {
   return new Date(s).getTime() || Infinity;
 }
 function formatFechaInput(s) {
-  // Convierte DD-Mon-YYYY a YYYY-MM-DD para <input type=date>
   if (!s) return '';
   if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0,10);
   const meses = { Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12' };
@@ -1057,7 +979,6 @@ function escapeHtml(s) {
 }
 function escapeAttr(s) { return escapeHtml(s).replace(/"/g,'&quot;'); }
 function cssEscape(s) {
-  // Escapa para usar en querySelector
   return String(s).replace(/(["\\#.:;?+*~'`!@$%^&={}|<>()\[\],\/])/g,'\\$1');
 }
 
@@ -1090,7 +1011,6 @@ document.getElementById('btnRefresh').addEventListener('click', async () => {
   btn.classList.remove('loading');
 });
 
-// First load
 loadPendientes();
 </script>
 </body>
