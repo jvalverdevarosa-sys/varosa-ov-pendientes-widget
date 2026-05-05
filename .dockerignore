@@ -1,0 +1,11 @@
+# Excluir archivos innecesarios del build context de Docker
+# para acelerar el build y evitar copiar cosas no relevantes.
+
+.git
+.gitignore
+README.md
+*.md
+.vscode
+.idea
+.DS_Store
+Thumbs.db
